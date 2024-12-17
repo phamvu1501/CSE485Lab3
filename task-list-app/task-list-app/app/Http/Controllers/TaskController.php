@@ -72,7 +72,7 @@ class TaskController extends Controller
             'title' => 'required',
             'description' => 'required',
             'long_description' => 'required',
-            'completed' => 'required',
+            'completed' => 'nullable/boolean',
         ]);
 
         $taskData = $request->all();
