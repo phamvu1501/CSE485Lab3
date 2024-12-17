@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('tasks.app')
 
 @section('content')
     <div class="container">
@@ -34,5 +34,8 @@
                 @endforeach
             </tbody>
         </table>
+        {{$tasks->links('pagination::bootstrap-5')}}
+
     </div>
+
 @endsection

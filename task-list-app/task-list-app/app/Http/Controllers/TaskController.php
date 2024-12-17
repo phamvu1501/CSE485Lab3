@@ -12,8 +12,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
-        return view('tasks.index', compact('tasks'));
+        $i = 1;
+        $page = Task::orderBy('updated_at','desc')->paginate(5);
+        $tasks = Task::orderBy('updated_at', 'desc')->paginate(5);
+        return view('tasks.index', compact('tasks', 'i', 'page'));
     }
 
     /**
@@ -32,9 +34,13 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required',
             'description' => 'required',
+            'long_description' => 'required',
+            'completed' => 'nullable/boolean',
         ]);
 
-        Task::create($request->all());
+        $taskData = $request->all();
+        $taskData['completed'] = $request->has('completed') ? 1 : 0;
+        Task::create($taskData);
 
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
@@ -42,41 +48,47 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Task $task)
+    public function show(int $id)
     {
-        return view('tasks.show', compact('task'));
+        $task = Task::findOrFail($id);
+        return view('tasks.show', compact(['task']));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Task $task)
+    public function edit(int $id)
     {
+        $task = Task::findOrFail($id);
         return view('tasks.edit', compact('task'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, int $id)
     {
         $request->validate([
             'title' => 'required',
             'description' => 'required',
+            'long_description' => 'required',
+            'completed' => 'required',
         ]);
 
-        $task->update($request->all());
-
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        $taskData = $request->all();
+        $taskData['completed'] = $request->has('completed') ? 1 : 0;
+        $task = Task::findOrFail($id);
+        $task->update($taskData);
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $task)
+    public function destroy(int $id)
     {
+        $task = Task::findOrFail($id);
         $task->delete();
-
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
 }
